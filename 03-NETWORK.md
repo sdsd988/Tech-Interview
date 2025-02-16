@@ -476,6 +476,7 @@ SYN Flooding 은 DDos 의 공격의 한 형태로, 악의적인 목적으로 네
 
 <details>
   <summary><h3>12. 4-Way Handshake에 대해 설명해 주세요.</h3></summary>
+- 4 Way Handshake 는 TCP(Transmission Control Protocol)를 사용하여 클라이언트와 서버 간의 데이터 통신이 완료된 후, 연결을 안전하게 종료하기 위한 과정입니다. 이 과정에서 클라이언트와 서버는 총 4단계의 패킷 교환을 통해 서로에게 연결 종료를 알리고, 자원을 정리하여 다른 연결에 사용할 수 있게 됩니다.
 <ul>
 <li> 패킷이 4-way handshake 목적인지 어떻게 파악할 수 있을까요?</li>
 <li> 빨리 끊어야 할 경우엔, (즉, 4-way Handshake를 할 여유가 없다면) 어떻게 종료할 수 있을까요?</li>
@@ -508,18 +509,136 @@ SYN Flooding 은 DDos 의 공격의 한 형태로, 악의적인 목적으로 네
 
 <details>
   <summary><h3>15. SOP 정책에 대해 설명해 주세요.</h3></summary>
+## SOP(Same-Origin Policy)란?
+
+SOP(Same-Origin Policy, 동일 출처 정책)는 **웹 보안 정책**으로,  
+서로 다른 출처(Origin) 간의 리소스 접근을 제한하는 규칙이다.
+
+### 🔹 Origin(출처) 정의
+- **Schema(프로토콜)**: `http`, `https`
+- **Host(도메인)**: `example.com`
+- **Port(포트 번호)**: `:80`, `:443` (기본 포트 포함)
+- 동일한 프로토콜, 도메인, 포트를 가진 경우에만 같은 Origin으로 간주
+
+### 🔹 SOP 적용 예시
+✅ `https://example.com/page1.html` → `https://example.com/page2.html` (허용)  
+❌ `https://example.com` → `http://example.com` (차단, 프로토콜 다름)  
+❌ `https://example.com` → `https://api.example.com` (차단, 서브도메인 다름)  
+❌ `https://example.com:443` → `https://example.com:8443` (차단, 포트 다름)
+
+### 🔹 예외 처리 방법
+- **CORS(Cross-Origin Resource Sharing)**: 서버에서 허용된 도메인만 접근 허용
+- **JSONP**: `<script>` 태그를 활용한 우회 방식 (비권장)
+
+📌 **목적**: 악의적인 스크립트가 다른 사이트의 중요한 데이터에 접근하는 것을 방지
+
 <ul>
 <li> CORS 정책이 무엇인가요?</li>
+## CORS(Cross-Origin Resource Sharing)란?
+
+CORS는 **다른 출처(Origin) 간의 리소스 공유를 제어하는 보안 정책**이다.  
+기본적으로 SOP(Same-Origin Policy)로 인해 **교차 출처 요청이 차단**되지만,  
+CORS를 사용하면 서버가 특정 출처의 요청을 허용할 수 있다.
+
+### 🔹 CORS 동작 방식
+1. **Preflight 요청(사전 요청)**:
+   - `OPTIONS` 메서드로 서버에 CORS 허용 여부를 미리 확인
+2. **서버 응답**:
+   - 적절한 CORS 헤더를 포함하여 응답 (`Access-Control-Allow-Origin`)
+3. **실제 요청**:
+   - 서버가 허용한 경우 클라이언트에서 본 요청을 수행
+
+### 🔹 주요 CORS 응답 헤더
+- `Access-Control-Allow-Origin: *` → 모든 출처 허용
+- `Access-Control-Allow-Origin: https://example.com` → 특정 출처만 허용
+- `Access-Control-Allow-Methods: GET, POST, PUT` → 허용할 HTTP 메서드 지정
+- `Access-Control-Allow-Headers: Content-Type` → 허용할 요청 헤더 지정
+
+📌 **목적**: 보안 강화를 유지하면서, 신뢰할 수 있는 출처에 한해 리소스를 공유
+
 <li> Preflight에 대해 설명해 주세요.</li>
+## Preflight 요청이란?
+
+Preflight 요청은 **CORS(Cross-Origin Resource Sharing)** 정책의 일부로,  
+브라우저가 **실제 요청**을 보내기 전에 서버에 **허용 여부를 확인**하는 **사전 요청**이다.  
+이는 **HTTP OPTIONS 메서드**를 사용하여 서버에 보내지며, 서버의 응답에 따라 실제 요청이 실행된다.
 </ul>
 </details>
 
 <details>
   <summary><h3>16. Stateless와 Connectionless에 대해 설명해 주세요.</h3></summary>
+
+## Stateless vs. Connectionless
+
+### 🔹 Stateless (무상태)
+- 서버가 클라이언트의 이전 요청 상태를 저장하지 않는 방식
+- 각 요청은 독립적으로 처리되며, 이전 요청과의 연관성이 없음
+- 예시: HTTP (기본적으로 Stateless), REST API
+
+### 🔹 Connectionless (비연결형)
+- 통신 전에 별도의 연결을 설정하지 않고 데이터를 전송하는 방식
+- 패킷은 독립적으로 전송되며, 순서 보장이나 재전송 처리가 없음
+- 예시: UDP(User Datagram Protocol)
+
+📌 **차이점**: Stateless는 **서버의 상태 유지 여부**, Connectionless는 **네트워크 연결 방식**과 관련됨
+
 <ul>
 <li> 왜 HTTP는 Stateless 구조를 채택하고 있을까요?</li>
+## HTTP가 Stateless 구조를 채택한 이유
+
+### 🔹 1. 확장성(Scalability) 향상
+- 서버가 클라이언트의 상태를 저장하지 않으므로 많은 요청을 효율적으로 처리 가능
+
+### 🔹 2. 서버 부담 감소
+- 상태 정보를 관리하지 않아 서버 리소스(CPU, 메모리) 소모가 적음
+
+### 🔹 3. 요청 간 독립성 유지
+- 각 요청이 독립적으로 처리되어, 장애 발생 시 특정 세션에 영향 없음
+
+### 🔹 4. 캐싱(Cache) 최적화
+- Stateless 구조 덕분에 중간 캐시 서버를 활용하여 성능 향상 가능
+
+📌 **단점 해결**: 쿠키, 세션, 토큰(JWT) 등을 활용해 상태 유지 필요 시 보완
+
 <li> Connectionless의 논리대로면 성능이 되게 좋지 않을 것으로 보이는데, 해결 방법이 있을까요?</li>
+## Connectionless 성능 개선 방법
+
+### 🔹 1. 오류 감지 및 재전송
+- **UDP + 애플리케이션 레벨 오류 검출** (예: RTP, QUIC)
+- 패킷 손실 감지 후 필요한 경우 재전송
+
+### 🔹 2. 순서 보장 메커니즘
+- **시퀀스 번호 활용**하여 데이터 순서 보장 (예: QUIC, TFTP)
+
+### 🔹 3. 혼잡 제어 및 흐름 제어
+- 네트워크 과부하 방지를 위한 **혼잡 제어 알고리즘 적용**
+- 예: QUIC(UDP 기반)에서 TCP와 유사한 흐름 제어 적용
+
+### 🔹 4. 로드 밸런싱 및 병렬 처리
+- 여러 경로로 패킷을 전송하여 성능 향상
+- 예: **멀티패스 UDP(Multipath UDP)**
+
+📌 **결론**: Connectionless 환경에서도 **애플리케이션 레벨에서 최적화 기법**을 적용하면 성능을 보완할 수 있음
+
 <li> TCP의 keep-alive와 HTTP의 keep-alive의 차이는 무엇인가요?</li>
+## TCP Keep-Alive vs. HTTP Keep-Alive 차이점
+
+### 🔹 TCP Keep-Alive
+- **목적**: 장기간 비활성 상태에서도 연결이 유지되는지 확인
+- **동작 방식**: 일정 시간 동안 데이터 전송이 없으면 작은 패킷(Keep-Alive 메시지) 전송
+- **사용 이유**: 네트워크 장애 감지, 유휴 연결 종료 방지
+- **예시**: SSH, 장시간 유지되는 TCP 연결
+
+### 🔹 HTTP Keep-Alive
+- **목적**: 여러 HTTP 요청을 하나의 TCP 연결에서 처리하여 성능 최적화
+- **동작 방식**: `Connection: keep-alive` 헤더를 사용해 연결을 유지
+- **사용 이유**: 새로운 TCP 연결 수립 비용 절감, 성능 향상
+- **예시**: 웹 페이지에서 여러 리소스(CSS, JS, 이미지) 로딩 시
+
+📌 **차이점**:
+- TCP Keep-Alive는 **연결 유지를 위한 네트워크 레벨**에서 작동
+- HTTP Keep-Alive는 **애플리케이션(HTTP) 레벨**에서 다수의 요청을 최적화
+
 </ul>
 </details>
 
