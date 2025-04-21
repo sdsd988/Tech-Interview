@@ -144,9 +144,172 @@
 
  <details>
   <summary><h3>11. 재귀함수에 대해 설명해 주세요.</h3></summary>
+- 재귀 함수는 자기 자신을 호출하는 함수입니다. 주어진 문제를 더 작은 문제로 나누어 해결할 수 있을 때 유용하게 사용.
+
+기본 구조
+
+ ``` java
+public int recursiveFunction(int n) {
+    if (n <= 0) return; // 종료 조건 (Base Case)
+    recursiveFunction(n - 1); // 자기 자신을 호출 (Recursive Case)
+}
+
+public int factorial(int n) {
+    if (n == 1) return 1; // Base Case
+    return n * factorial(n - 1); // Recursive Case
+}
+
+public int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+```
+
+Base Case (종료 조건): 재귀 호출을 멈출 조건을 지정. 없으면 무한 루프 발생.
+
+Recursive Case (재귀 조건): 문제를 더 작은 문제로 나누어 자기 자신을 호출.
+
+항목 | 재귀 | 반복
+코드 간결성 | ✅ 간결함 | ❌ 복잡할 수 있음
+성능 | ❌ 느릴 수 있음 | ✅ 빠름
+메모리 사용 | ❌ 스택 사용 | ✅ 효율적
+이해도 | ✅ 수학적 사고 적합 | ✅ 직관적
 <ul>
 <li> 재귀 함수의 동작 과정을 Call Stack을 활용해서 설명해 주세요.</li>
+
+# 재귀 함수와 Call Stack
+
+## Call Stack이란?
+- 함수 호출 시 **함수의 실행 정보를 저장하는 메모리 영역**
+- 재귀 호출은 **자기 자신을 계속 호출하므로 Call Stack에 쌓임**
+- 호출이 끝나면 **마지막에 호출된 함수부터 차례로 종료**
+
+---
+
+## 예제: 팩토리얼 계산
+
+
+```java
+public int factorial(int n) {
+    if (n == 1) return 1;
+    return n * factorial(n - 1);
+}
+```
+
+### factorial(4)를 호출하면?
+
+1. 호출 단계
+
+factorial(4) 호출 → factorial(3) 호출 → factorial(2) 호출 → factorial(1) 호출
+
+**Call Stack 상태 (위 → 아래)**
+
+| factorial(1) |
+| factorial(2) |
+| factorial(3) |
+| factorial(4) | ← 가장 먼저 호출된 함수 (가장 아래에 위치)
+
+
+**2. 반환 단계 (Call Stack에서 빠짐)**
+factorial(1) → 1 반환
+factorial(2) → 2 * 1 = 2 반환
+factorial(3) → 3 * 2 = 6 반환
+factorial(4) → 4 * 6 = 24 반환
+
+호출 순서:
+
+factorial(4)
+ └─ factorial(3)
+      └─ factorial(2)
+           └─ factorial(1)
+                └─ return 1
+
+반환 순서:
+
+factorial(1) → 1
+factorial(2) → 2 * 1 = 2
+factorial(3) → 3 * 2 = 6
+factorial(4) → 4 * 6 = 24
+
+Call Stack 주의 사항
+재귀 호출이 너무 깊어지면 StackOverflowError 발생
+
+Java에서는 일반적으로 1,000~2,000 레벨 이상의 깊은 재귀 호출 시 오류 발생
+
+반복문 사용이 가능한 경우에는 재귀 대신 반복문 사용을 고려
+
+최적화 기법: 꼬리 재귀(Tail Recursion) 또는 메모이제이션(Memoization)
+
+
 <li> 언어의 스펙에 따라, 재귀함수의 최적화를 진행해주는 경우가 있습니다. 어떤 경우에 재귀함수의 최적화가 가능하며, 이를 어떻게 최적화 할 수 있을지 설명해 주세요.</li>
+
+# Java에서의 재귀 함수 최적화
+
+##  재귀 함수 최적화란?
+
+재귀 호출을 사용할 때, **호출 스택을 줄이거나 제거**하여 **메모리 낭비를 막고 성능을 개선**하는 기법입니다.
+
+---
+
+##  꼬리 재귀 (Tail Recursion)
+
+###  정의
+
+> **재귀 호출이 함수의 마지막 동작인 경우**, 이를 **꼬리 재귀(Tail Recursion)** 라고 합니다.
+
+즉, **재귀 호출 뒤에 더 이상 실행할 코드가 없을 때** 발생합니다.
+
+### 일반 재귀
+
+```java
+public int factorial(int n) {
+    if (n == 1) return 1;
+    return n * factorial(n - 1); // 재귀 호출 후 곱셈이 있음 → 꼬리 재귀 아님
+}
+```
+
+### 꼬리 재귀
+
+```java
+public int factorialTail(int n, int acc) {
+    if (n == 1) return acc;
+    return factorialTail(n - 1, n * acc); // 마지막에 재귀 호출만 있음 → 꼬리 재귀
+}
+
+```
+ 
+ 꼬리 재귀 최적화 (Tail Call Optimization, TCO)
+- 일반적으로 꼬리 재귀는 컴파일러가 최적화하여 스택 프레임을 새로 쌓지 않고, 현재 스택 프레임을 재사용할 수 있습니다.
+
+하지만, Java에서는?
+
+Java는 꼬리 재귀 최적화를 지원하지 않습니다.
+
+JVM(Java Virtual Machine) 사양에서는 명시적으로 꼬리 재귀 최적화가 금지되어 있음
+
+이유: 디버깅, 스택 트레이스 유지 등 JVM의 설계 철학 때문
+
+항목 | 설명
+꼬리 재귀 | 재귀 호출이 함수의 마지막 동작일 때
+Java의 TCO 지원 | ❌ 미지원
+최적화 방법 | 반복문으로 변환하거나 직접 스택 사용
+추천 방식 | 반복문 (가독성, 성능 모두 우수)
+
+
+** Kotlin 에서의 꼬리 재귀 최적화 **
+
+```kotlin
+tailrec fun factorial(n: Int, acc: Int = 1): Int {
+    return if (n == 1) acc else factorial(n - 1, acc * n)
+}
+
+```
+
+factorial(5)
+→ 컴파일 타임에 루프로 변환
+→ Stack 사용 없이 반복문처럼 동작
+
 </ul>
 </details>   
 
