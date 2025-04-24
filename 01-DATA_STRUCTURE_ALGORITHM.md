@@ -171,10 +171,10 @@ Base Case (종료 조건): 재귀 호출을 멈출 조건을 지정. 없으면 �
 Recursive Case (재귀 조건): 문제를 더 작은 문제로 나누어 자기 자신을 호출.
 
 항목 | 재귀 | 반복
-코드 간결성 | ✅ 간결함 | ❌ 복잡할 수 있음
-성능 | ❌ 느릴 수 있음 | ✅ 빠름
-메모리 사용 | ❌ 스택 사용 | ✅ 효율적
-이해도 | ✅ 수학적 사고 적합 | ✅ 직관적
+코드 간결성 | 간결함 |  복잡할 수 있음
+성능 |  느릴 수 있음 | 빠름
+메모리 사용 |  스택 사용 |  효율적
+이해도 |  수학적 사고 적합 |  직관적
 <ul>
 <li> 재귀 함수의 동작 과정을 Call Stack을 활용해서 설명해 주세요.</li>
 
@@ -218,13 +218,13 @@ factorial(3) → 3 * 2 = 6 반환
 factorial(4) → 4 * 6 = 24 반환
 
 호출 순서:
-
+```
 factorial(4)
  └─ factorial(3)
       └─ factorial(2)
            └─ factorial(1)
                 └─ return 1
-
+```
 반환 순서:
 
 factorial(1) → 1
@@ -324,9 +324,102 @@ factorial(5)
 
  <details>
   <summary><h3>13. Thread Safe 한 자료구조가 있을까요? 없다면, 어떻게 Thread Safe 하게 구성할 수 있을까요?</h3></summary>
+
+   # 🔒 Thread Safe 한 자료구조란?
+
+## 📌 정의
+
+> 여러 스레드가 동시에 접근하더라도 **데이터의 정합성과 일관성을 보장**하는 자료구조
+
+---
+
+## Java에서 제공하는 Thread Safe 자료구조
+
+### 🔹 java.util.concurrent 패키지 
+
+| 자료구조                        | 설명 |
+|-------------------------------|------|
+| `ConcurrentHashMap`           | 병렬 처리를 지원하는 HashMap |
+| `CopyOnWriteArrayList`        | 읽기 위주 작업에 최적화된 List |
+| `ConcurrentLinkedQueue`       | 비동기 Queue (Lock-Free) |
+| `ConcurrentSkipListMap`       | 정렬된 Map, ConcurrentHashMap의 TreeMap 버전 |
+| `BlockingQueue` (예: `ArrayBlockingQueue`) | 생산자-소비자 패턴 구현에 적합 |
+
+### 🔹 동기화 래퍼 (기존 컬렉션을 Thread Safe하게 변환)
+
+```java
+List<String> syncList = Collections.synchronizedList(new ArrayList<>());
+Map<String, String> syncMap = Collections.synchronizedMap(new HashMap<>());
+```
 <ul>
 <li> 배열의 길이를 알고 있다면, 조금 더 빠른 Thread Safe 한 연산을 만들 순 없을까요?</li>
+  # ⚡ 배열 길이를 알고 있는 경우, 더 빠른 Thread Safe 연산 만들기
+
+## 📌 기본 아이디어
+
+> 배열의 크기가 고정되어 있다면, **락을 분할하거나 락 없이 병렬 처리**하는 전략을 사용할 수 있습니다.
+
+---
+
+## ✅ 전략 1: 요소 단위 락 (Fine-Grained Locking)
+
+### 개념
+
+- 배열의 각 요소마다 **별도의 락 객체를 두어**, 병렬 처리 시 **락 경합 최소화**
+
+### 예시
+
+```java
+public class AtomicArray {
+    private final int[] data;
+    private final Object[] locks;
+
+    public AtomicArray(int size) {
+        data = new int[size];
+        locks = new Object[size];
+        for (int i = 0; i < size; i++) {
+            locks[i] = new Object();
+        }
+    }
+
+    public void add(int index, int value) {
+        synchronized (locks[index]) {
+            data[index] += value;
+        }
+    }
+
+    public int get(int index) {
+        synchronized (locks[index]) {
+            return data[index];
+        }
+    }
+}
+```
 <li> 사용하고 있는 언어의 자료구조는 Thread Safe 한가요? 그렇지 않다면, Thread Safe 한 Wrapped Data Structure 를 제공하고 있나요?</li>
+
+# ❓ Java의 자료구조는 Thread Safe 한가요?
+
+## 📌 기본적으로 Java의 `java.util` 컬렉션은 **Thread Safe 하지 않습니다.**
+
+| 자료구조      | Thread Safe 여부 | 비고 |
+|---------------|------------------|------|
+| `ArrayList`   | ❌               | 멀티스레드에서 사용하면 동기화 필요 |
+| `HashMap`     | ❌               | 멀티스레드 환경에서 ConcurrentModificationException 발생 가능 |
+| `HashSet`     | ❌               | 내부적으로 HashMap 사용 |
+| `LinkedList`  | ❌               | 동기화되지 않음 |
+
+---
+
+## ✅ Thread Safe 한 Wrapped 자료구조 제공
+
+Java는 기본 컬렉션을 Thread Safe 하게 **감싸는 래퍼 클래스**를 제공합니다.
+
+### 📦 `Collections.synchronizedXXX()`
+
+```java
+List<String> syncList = Collections.synchronizedList(new ArrayList<>());
+Map<String, String> syncMap = Collections.synchronizedMap(new HashMap<>());
+
 </ul>
 </details>  
 
