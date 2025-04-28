@@ -439,7 +439,6 @@ Java 9부터 도입된 **Java Platform Module System (JPMS)**를 사용하면,
 <details>
   <summary><h3>5. static class와 static method를 비교해 주세요.</h3></summary>
 
-  
 구분 | static class | static method
 대상 | 클래스 | 메소드(함수)
 의미 | 클래스가 외부 클래스 인스턴스에 독립적이다 | 메소드가 객체 상태와 무관하다
