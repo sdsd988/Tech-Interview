@@ -788,6 +788,70 @@ Java Stream의 특징:
 함수형 프로그래밍 지원: 람다 표현식(lambda expressions)과 함수형 인터페이스(functional interfaces)를 활용하여 코드를 간결하고 유연하게 작성할 수 있습니다.
 병렬 처리 용이성: parallelStream() 메서드를 통해 스트림을 병렬 스트림으로 쉽게 변환하여 여러 스레드에서 데이터를 병렬로 처리할 수 있습니다. 이는 대규모 데이터 처리 작업의 성능을 크게 향상시킬 수 있습니다.
 재사용 불가: 스트림은 한 번 최종 연산을 수행하면 더 이상 사용할 수 없습니다. 다시 데이터를 처리하려면 새로운 스트림을 생성해야 합니다.
+
+
+** 추가 질문 ** Javacript에서의 Stream 
+
+JavaScript에서 Stream과 관련된 주요 개념은 다음과 같습니다.
+
+1. Observable (RxJS):
+
+비동기 데이터 스트림: Reactive Extensions for JavaScript (RxJS)는 Observable이라는 핵심 개념을 제공합니다. Observable은 시간이 지남에 따라 방출되는 값의 시퀀스를 나타냅니다. 이는 비동기 이벤트, API 응답, 사용자 입력 등 다양한 종류의 데이터를 모델링하는 데 사용됩니다.
+함수형 반응형 프로그래밍 (FRP): RxJS는 함수형 프로그래밍과 반응형 프로그래밍 패러다임을 기반으로 비동기 및 이벤트 기반 코드를 효과적으로 관리하고 구성할 수 있도록 해줍니다.
+연산자: RxJS는 map, filter, reduce, merge, concat 등 Java Stream API와 유사한 다양한 연산자를 제공하여 Observable에서 방출되는 데이터를 변환, 필터링, 결합하고 처리할 수 있습니다.
+Lazy Evaluation: Observable도 기본적으로는 구독(subscribe)될 때까지 아무런 동작을 수행하지 않는 지연 평가(lazy evaluation) 방식을 따릅니다.
+예시 (RxJS):
+
+JavaScript
+
+import { fromEvent, interval } from 'rxjs';
+import { map, filter, take } from 'rxjs/operators';
+
+// DOM 이벤트에서 Observable 생성
+const click$ = fromEvent(document, 'click');
+
+// 간격으로 값을 방출하는 Observable 생성
+const timer$ = interval(1000);
+
+// 클릭 이벤트의 좌표 매핑
+const clickCoords$ = click$.pipe(map(event => ({ x: event.clientX, y: event.clientY })));
+
+// 특정 조건 필터링
+const filteredTimer$ = timer$.pipe(filter(value => value % 2 === 0), take(5));
+
+// 구독하여 데이터 처리
+clickCoords$.subscribe(coords => console.log('클릭 좌표:', coords));
+filteredTimer$.subscribe(value => console.log('짝수 타이머 값:', value));
+2. Async Iterable & Async Iterator (ES2018):
+
+비동기 데이터 순회: ECMAScript 2018 (ES9)에 도입된 Async Iterable과 Async Iterator는 비동기적으로 생성되는 데이터 시퀀스를 순회하기 위한 메커니즘을 제공합니다. 이는 비동기 제너레이터 함수(async function*)를 통해 생성할 수 있습니다.
+for await...of 루프: Async Iterable은 for await...of 루프를 사용하여 비동기적으로 값을 순회할 수 있습니다.
+예시 (Async Iterable):
+
+JavaScript
+
+async function* generateAsyncNumbers() {
+  for (let i = 1; i <= 5; i++) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    yield i;
+  }
+}
+
+async function processAsyncNumbers() {
+  for await (const number of generateAsyncNumbers()) {
+    console.log('비동기 숫자:', number);
+  }
+}
+
+processAsyncNumbers();
+Java Stream과의 차이점:
+
+주요 대상: Java Stream은 주로 동기적인 컬렉션 데이터를 처리하는 데 초점을 맞추는 반면, JavaScript의 Observable (RxJS)는 비동기 이벤트 및 데이터 스트림을 다루는 데 강력합니다. Async Iterable/Iterator는 비동기 데이터 순회에 특화되어 있습니다.
+내장 vs 라이브러리: Java Stream은 언어의 핵심 기능으로 내장되어 있지만, JavaScript에서 강력한 스트림 처리 기능을 사용하려면 RxJS와 같은 외부 라이브러리를 사용하는 경우가 많습니다. Async Iterable/Iterator는 ES 표준에 포함된 비교적 새로운 기능입니다.
+병렬 처리: Java Stream은 parallelStream()을 통해 간편하게 병렬 처리를 지원하지만, JavaScript에서는 웹 워커(Web Workers)와 같은 별도의 메커니즘을 사용하여 병렬 처리를 구현해야 하며, 스트림 API 자체에서 직접적인 병렬 처리 지원은 제한적입니다.
+결론:
+
+JavaScript에도 데이터 스트림을 처리하는 개념이 존재하지만, Java의 Stream API와는 그 목적과 사용 방식에 차이가 있습니다. RxJS의 Observable은 비동기 데이터 스트림 처리에 강력한 도구를 제공하며, Async Iterable/Iterator는 비동기 데이터 순회를 위한 새로운 표준입니다. JavaScript에서 스트림과 유사한 방식으로 데이터를 처리하려면 이러한 개념과 관련 라이브러리를 이해하는 것이 중요합니다.
 <ul>
 <li> Stream과 for ~ loop의 성능 차이를 비교해 주세요,</li>
 
